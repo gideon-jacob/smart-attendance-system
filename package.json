@@ -1,0 +1,13 @@
+{
+  "name": "smart-attendance-system",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "postinstall": "npm -ws run postinstall --if-present",
+    "format": "npm -ws run format --if-present",
+    "lint": "npm -ws run lint --if-present"
+  }
+}
