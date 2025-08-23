@@ -24,4 +24,16 @@ router.get('/attendance', requireAuth, requireRole('student', 'parent'), async (
   }
 });
 
+router.get('/courses', requireAuth, requireRole('student'), async (req: AuthedRequest, res, next) => {
+  try {
+    const enrollments = await prisma.courseEnrollment.findMany({
+      where: { studentId: req.user!.id },
+      include: { course: { include: { instructor: true } } },
+    });
+    res.json(enrollments.map((e) => e.course));
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;

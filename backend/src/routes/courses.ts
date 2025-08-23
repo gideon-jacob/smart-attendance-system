@@ -44,4 +44,68 @@ router.get('/mine', requireRole('instructor'), async (req: any, res, next) => {
   }
 });
 
+router.get('/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const course = await prisma.course.findUnique({
+      where: { id },
+      include: { instructor: true, students: { include: { student: true } } },
+    });
+    if (!course) return res.status(404).json({ error: 'Course not found' });
+    res.json(course);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.put('/:id', requireRole('admin'), async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const data = courseSchema.partial().parse(req.body);
+    const course = await prisma.course.update({ where: { id }, data });
+    res.json(course);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.delete('/:id', requireRole('admin'), async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await prisma.course.delete({ where: { id } });
+    res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
+});
+
+const enrollSchema = z.object({
+  studentId: z.string().uuid(),
+});
+
+router.post('/:id/students', requireRole('admin'), async (req, res, next) => {
+  try {
+    const { id: courseId } = req.params;
+    const { studentId } = enrollSchema.parse(req.body);
+    await prisma.courseEnrollment.create({
+      data: { courseId, studentId },
+    });
+    res.status(201).send();
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.delete('/:id/students/:studentId', requireRole('admin'), async (req, res, next) => {
+  try {
+    const { id: courseId, studentId } = req.params;
+    await prisma.courseEnrollment.delete({
+      where: { studentId_courseId: { studentId, courseId } },
+    });
+    res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;

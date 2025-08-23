@@ -64,4 +64,26 @@ router.put('/:id', async (req: AuthedRequest, res, next) => {
   }
 });
 
+router.get('/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const user = await prisma.user.findUnique({ where: { id } });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    const { passwordHash, ...u } = user;
+    res.json(u);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.delete('/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await prisma.user.delete({ where: { id } });
+    res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;

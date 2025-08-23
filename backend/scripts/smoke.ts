@@ -46,9 +46,9 @@ async function put<T>(path: string, body: any, token?: string): Promise<T> {
   return res.json() as any;
 }
 
-function todayRange() {
-  const from = new Date(); from.setHours(0,0,0,0);
-  const to = new Date(); to.setHours(23,59,59,999);
+function dayRange(date: Date) {
+  const from = new Date(date); from.setHours(0,0,0,0);
+  const to = new Date(date); to.setHours(23,59,59,999);
   return { from: from.toISOString(), to: to.toISOString() };
 }
 
@@ -71,16 +71,19 @@ async function main() {
   if (!student || !instructor) throw new Error('Seed users missing');
 
   const courses: any[] = await get('/api/courses', admin.token);
-  const course = courses.find(c => c.courseCode === 'CS101') || courses[0];
-  if (!course) throw new Error('No course found');
+  const course = courses.find(c => c.daysOfWeek.includes(new Date().getDay())) || courses[0];
+  if (!course) throw new Error('No course found for today');
 
   // Record attendance via hardware endpoint simulation
-  const ts = new Date().toISOString();
+  const today = new Date();
+  const dayOffset = course.daysOfWeek[0] - today.getDay();
+  const scheduledDate = new Date(today.setDate(today.getDate() + dayOffset));
+  const ts = scheduledDate.toISOString();
   const rec = await post('/api/attendance/record', { studentId: student.id, courseId: course.id, timestamp: ts });
   console.log('Recorded attendance:', rec.id);
 
   // Reports
-  const { from, to } = todayRange();
+  const { from, to } = dayRange(scheduledDate);
   const report: any[] = await get(`/api/reports?courseId=${course.id}&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`, admin.token);
   if (!report.find(r => r.studentId === student.id)) throw new Error('Report missing recorded attendance');
   console.log('Report items today:', report.length);
