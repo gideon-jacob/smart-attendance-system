@@ -1,30 +1,52 @@
-import { Link, Route, Routes, Navigate } from 'react-router-dom';
-import Nav from '../../components/Nav';
+import { Route, Routes, Navigate, Link as RouterLink } from 'react-router-dom';
+import { Box, Drawer, List, ListItem, ListItemButton, ListItemText, Toolbar } from '@mui/material';
 import UsersPage from './UsersPage';
 import CoursesPage from './CoursesPage';
 import ReportsPage from './ReportsPage';
 
+const drawerWidth = 240;
+
 export default function AdminDashboard() {
   return (
-    <div>
-      <Nav />
-      <div style={{ display: 'flex' }}>
-        <aside style={{ width: 200, borderRight: '1px solid #ddd', padding: 12 }}>
-          <ul>
-            <li><Link to="users">User Management</Link></li>
-            <li><Link to="courses">Course Management</Link></li>
-            <li><Link to="reports">Reports</Link></li>
-          </ul>
-        </aside>
-        <main style={{ flex: 1, padding: 16 }}>
-          <Routes>
-            <Route path="users" element={<UsersPage />} />
-            <Route path="courses" element={<CoursesPage />} />
-            <Route path="reports" element={<ReportsPage />} />
-            <Route path="*" element={<Navigate to="users" replace />} />
-          </Routes>
-        </main>
-      </div>
-    </div>
+    <Box sx={{ display: 'flex' }}>
+      <Drawer
+        variant="permanent"
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box', top: 'auto' },
+        }}
+      >
+        <Toolbar />
+        <Box sx={{ overflow: 'auto' }}>
+          <List>
+            <ListItem disablePadding>
+              <ListItemButton component={RouterLink} to="users">
+                <ListItemText primary="User Management" />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton component={RouterLink} to="courses">
+                <ListItemText primary="Course Management" />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton component={RouterLink} to="reports">
+                <ListItemText primary="Reports" />
+              </ListItemButton>
+            </ListItem>
+          </List>
+        </Box>
+      </Drawer>
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        <Toolbar />
+        <Routes>
+          <Route path="users" element={<UsersPage />} />
+          <Route path="courses" element={<CoursesPage />} />
+          <Route path="reports" element={<ReportsPage />} />
+          <Route path="*" element={<Navigate to="users" replace />} />
+        </Routes>
+      </Box>
+    </Box>
   );
 }

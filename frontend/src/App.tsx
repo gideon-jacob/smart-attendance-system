@@ -4,12 +4,23 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import InstructorDashboard from './pages/instructor/InstructorDashboard';
 import StudentDashboard from './pages/student/StudentDashboard';
 import { useAuth } from './auth/useAuth';
+import Nav from './components/Nav';
+import { Box } from '@mui/material';
 
 function RequireAuth({ children, role }: { children: JSX.Element; role?: string }) {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
   if (role && user.role !== role) return <Navigate to={`/${user.role}`} replace />;
   return children;
+}
+
+function Layout({ children }: { children: JSX.Element }) {
+  return (
+    <Box>
+      <Nav />
+      {children}
+    </Box>
+  );
 }
 
 export default function App() {
@@ -20,7 +31,9 @@ export default function App() {
         path="/admin/*"
         element={
           <RequireAuth role="admin">
-            <AdminDashboard />
+            <Layout>
+              <AdminDashboard />
+            </Layout>
           </RequireAuth>
         }
       />
@@ -28,7 +41,9 @@ export default function App() {
         path="/instructor/*"
         element={
           <RequireAuth role="instructor">
-            <InstructorDashboard />
+            <Layout>
+              <InstructorDashboard />
+            </Layout>
           </RequireAuth>
         }
       />
@@ -36,7 +51,9 @@ export default function App() {
         path="/student/*"
         element={
           <RequireAuth role="student">
-            <StudentDashboard />
+            <Layout>
+              <StudentDashboard />
+            </Layout>
           </RequireAuth>
         }
       />

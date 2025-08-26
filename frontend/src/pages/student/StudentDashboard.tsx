@@ -1,6 +1,6 @@
-import Nav from '../../components/Nav';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../auth/useAuth';
+import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 
 type Row = { id: string; timestamp: string; courseId: string; status: string };
 
@@ -13,23 +13,30 @@ export default function StudentDashboard() {
   }, []);
 
   return (
-    <div>
-      <Nav />
-      <div style={{ padding: 16 }}>
-        <h2>My Attendance</h2>
-        <table border={1} cellPadding={6} style={{ marginTop: 12, width: '100%' }}>
-          <thead><tr><th>Date</th><th>Course</th><th>Status</th></tr></thead>
-          <tbody>
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h4" component="h2" gutterBottom>
+        My Attendance
+      </Typography>
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell>Date</TableCell>
+              <TableCell>Course</TableCell>
+              <TableCell>Status</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
             {rows.map(r => (
-              <tr key={r.id}>
-                <td>{new Date(r.timestamp).toLocaleString()}</td>
-                <td>{r.courseId}</td>
-                <td>{r.status}</td>
-              </tr>
+              <TableRow key={r.id}>
+                <TableCell>{new Date(r.timestamp).toLocaleString()}</TableCell>
+                <TableCell>{r.courseId}</TableCell>
+                <TableCell>{r.status}</TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
   );
 }
